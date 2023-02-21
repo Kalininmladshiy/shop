@@ -1,0 +1,14 @@
+{% extends "shop/base.html" %}
+
+{% block title %}
+    Спасибо
+{% endblock %}
+
+{% block content %}
+    <h1>Спасибо!</h1>
+    <p>Ваш заказ был успешно сформирован. Номер вашего заказа:
+        <strong>{{ order.id }}</strong>.
+        Наш менеджер свяжется с вами по укзанному номеру телефона</p>
+    <a href="#" class="button">Оплатить</a>
+
+{% endblock %}
