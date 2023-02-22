@@ -1,7 +1,9 @@
 import stripe
+from django.core.mail import send_mail
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import HttpResponse
 from order.models import Order
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -24,12 +26,54 @@ def create_checkout_session(request, pk):
                 'quantity': 1,
             },
         ],
+        metadata={
+          'product_id': order.id
+        },
         mode='payment',
         success_url=YOUR_DOMAIN + '/payment/success',
         cancel_url=YOUR_DOMAIN + '/payment/cancel',
     )
 
     return redirect(checkout_session.url, code=303)
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    event = None
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_KEY
+        )
+    except ValueError as e:
+        # Invalid payload
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return HttpResponse(status=400)
+
+    if event['type'] == 'checkout.session.completed':
+        session = stripe.checkout.Session.retrieve(
+            event['data']['object']['id'],
+            expand=['line_items'],
+        )
+
+        customer_email = session['customer_details']['email']
+        order_id = session['metadata']['product_id']
+
+        order = Order.objects.get(id=order_id)
+        order.paid = True
+        order.save()
+
+        send_mail(
+            subject='Ваш заказ оплачен',
+            message=f'Спасибо! Ваш заказ {order_id} оплачен!',
+            recipient_list=[customer_email],
+            from_email='test@test.com',
+        )
+
+    return HttpResponse(status=200)
 
 
 def success_payment(request):
