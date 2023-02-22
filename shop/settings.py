@@ -27,6 +27,7 @@ INSTALLED_APPS = [
 
     'order',
     'cart',
+    'payment',
     'phonenumber_field',
 ]
 
@@ -108,3 +109,7 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CART_SESSION_ID = 'cart'
+
+STRIPE_PUBLIC_KEY = env('PUBLISH_KEY_STRIPE')
+STRIPE_SECRET_KEY = env('SECRET_KEY_STRIPE')
+STRIPE_WEBHOOK_KEY = ''

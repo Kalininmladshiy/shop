@@ -9,6 +9,9 @@
     <p>Ваш заказ был успешно сформирован. Номер вашего заказа:
         <strong>{{ order.id }}</strong>.
         Наш менеджер свяжется с вами по укзанному номеру телефона</p>
-    <a href="#" class="button">Оплатить</a>
+    <form action="{% url 'payment:create_checkout_session' order.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" id="checkout-button">Оплатить</button>
+    </form>
 
 {% endblock %}
