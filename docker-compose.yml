@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  rabbit:
+    image: rabbitmq:3.9-management
+    container_name: rabbit
+    hostname: rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=/
+    ports:
+      - "5682:5672"
+      - "15682:15672"
+    networks:
+      - shared_network
+  web: 
+    build: .
+    container_name: shop
+    ports: 
+      - '8000:8000'
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - rabbit
+    networks:
+      - shared_network
+  stripe:
+    image: stripe/stripe-cli:v1.13.9
+    command: listen --forward-to http://web:8000/djstripe/webhook/
+    depends_on:
+      - web
+    environment:
+      - STRIPE_API_KEY=${SECRET_KEY_STRIPE}
+      - STRIPE_DEVICE_NAME=djstripe_docker
+networks:
+  shared_network:
+    driver: bridge
