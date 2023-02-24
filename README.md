@@ -30,6 +30,18 @@ python manage.py createsuperuser
 
 ### 6. Переходим на http://127.0.0.1:8000/ и видим сайт.
 
+
+## Переменные окружения
+
+Создать файл `.env` в каталоге проекта со следующими настройками:
+
+SECRET_KEY - секретный ключ проекта.  
+DEBUG - дебаг-режим.  
+PUBLISH_KEY_STRIPE - публичный ключ STRIPE.  
+SECRET_KEY_STRIPE - секретный ключ STRIPE.  
+WEBHOOK_KEY_STRIPE  - ключ для Webhook.  
+ALLOWED_HOSTS - [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
+
 ## Цели проекта
 
 Код написан в тестовых целях на вакансию компании ООО Ришат. 
